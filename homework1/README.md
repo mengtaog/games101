@@ -24,8 +24,12 @@ Projection transformations：投影变换包含两种投影方式：正交投影
 
 ### Build & Run
 mkdir build
+
 cd build
+
 cmake ..
+
 make -j4
+
 ./Rasterizer
 
