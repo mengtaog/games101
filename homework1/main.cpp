@@ -63,7 +63,7 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
 		move<< 
 		2/(x1-x2), 0, 0, -(x1+x2)/2,
 		0, 2/(y1-y2), 0, -(y1+y2)/2,
-		0, 0, 1, -(zNear+zFar)/2,
+		0, 0, 2/(zNear-zFar), -(zNear+zFar)/2,
 		0, 0, 0, 1;
 		projection = move * frustum2Cuboid * projection;
     // TODO: Implement this function
