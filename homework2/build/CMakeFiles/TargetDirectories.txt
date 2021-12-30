@@ -1,0 +1,3 @@
+/mnt/c/Users/mengtao/work/repository/games101/homework2/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/mengtao/work/repository/games101/homework2/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/mengtao/work/repository/games101/homework2/build/CMakeFiles/Rasterizer.dir

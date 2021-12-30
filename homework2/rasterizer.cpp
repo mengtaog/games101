@@ -46,11 +46,9 @@ int get_sign(float n)
         else return 0;
     }
 
-static bool insideTriangle(int x, int y, const Vector3f* _v)
+static bool insideTriangle(float x, float y, const Vector3f* _v)
 {   
     //a:_v[0], b:_v[1], c:_v[2]
-
-    
     Vector3f p(x,y,1.0f);
     Vector3f lines[3];
     for (int i = 0; i < 3; ++i)
@@ -80,6 +78,27 @@ static std::tuple<float, float, float> computeBarycentric2D(float x, float y, co
     float c2 = (x*(v[2].y() - v[0].y()) + (v[0].x() - v[2].x())*y + v[2].x()*v[0].y() - v[0].x()*v[2].y()) / (v[1].x()*(v[2].y() - v[0].y()) + (v[0].x() - v[2].x())*v[1].y() + v[2].x()*v[0].y() - v[0].x()*v[2].y());
     float c3 = (x*(v[0].y() - v[1].y()) + (v[1].x() - v[0].x())*y + v[0].x()*v[1].y() - v[1].x()*v[0].y()) / (v[2].x()*(v[0].y() - v[1].y()) + (v[1].x() - v[0].x())*v[2].y() + v[0].x()*v[1].y() - v[1].x()*v[0].y());
     return {c1,c2,c3};
+}
+
+static float msaa(int x, int y, const Triangle& t) //2*2 
+{
+    Vector3f points[4];
+    Vector3f point = Vector3f{x, y, 0};
+    points[0] = point + Vector3f{0.25f, 0.25f, 0};
+    points[1] = point + Vector3f{0.25f, -0.25f ,0};
+    points[2] = point + Vector3f{-0.25f, 0.25f, 0};
+    points[3] = point + Vector3f{-0.25f, -0.25f, 0};
+    float result = 0;
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        if (insideTriangle(points[i].x(), points[i].y(), t.v))
+        {
+            result = result + 1.0f;
+        }
+    }
+    result = result/4.0f;
+    return result;
 }
 
 void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf_id col_buffer, Primitive type)
@@ -152,7 +171,10 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
                 float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
                 float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
                 z_interpolated *= w_reciprocal;
-                set_pixel(Vector3f(m,n,z_interpolated), t.getColor());
+                //set_pixel(Vector3f(m,n,z_interpolated), t.getColor());
+                float a = msaa(m, n, t);
+                if (a > 0)
+                    set_pixel(Vector3f(m,n,z_interpolated), a * t.getColor() + (1.0f - a) * frame_buf[(height-1-n)*width + m]);
             }
         }
     }
