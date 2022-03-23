@@ -158,13 +158,13 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     x2 = std::max(v[0].x(), std::max(v[1].x(), v[2].x()));
     y1 = std::min(v[0].y(), std::min(v[1].y(), v[2].y()));
     y2 = std::max(v[0].y(), std::max(v[1].y(), v[2].y()));
-    for (int m = x1; m <= x2; ++m)
+    for (int m = x1; m <= x2; ++m) //遍历Box[x1, x2] * [y1, y2]中的所有点(m, n)
     {
         for (int n = y1; n <= y2; ++n)
         {
             if (insideTriangle(m, n, t.v))
             {
-                auto barycentric = computeBarycentric2D(m, n, t.v);
+                auto barycentric = computeBarycentric2D(m, n, t.v); //获取(m, n) 关于三角形顶点的重心坐标
                 float alpha = std::get<0>(barycentric);
                 float beta = std::get<1>(barycentric);
                 float gamma = std::get<2>(barycentric);
