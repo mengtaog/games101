@@ -269,6 +269,47 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
     // float zp = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
     // zp *= Z;
 
+    auto v = t.toVector4();
+    float minX = std::min(v[0][0], std::min(v[1][0], v[2][0]));
+    float maxX = std::max(v[0][0], std::max(v[1][0], v[2][0]));
+    float minY = std::min(v[0][1], std::min(v[1][1], v[2][1]));
+    float maxY = std::max(v[0][1], std::max(v[1][1], v[2][1]));
+
+    int x1 = std::floor(minX);
+    int x2 = std::ceil(maxX);
+    int y1 = std::floor(minY);
+    int y2 = std::ceil(maxY);
+
+    for (int m = x1; m <= x2; ++m) //for points (m, n) in Box [x1, x2] * [y1, y2]
+    {
+        for (int n = y1; n <= y2; ++n)
+        {
+            if (insideTriangle(m, n, t.v))
+            {   
+                auto [alpha, beta, gamma] = computeBarycentric2D(m, n, t.v);
+                float Z = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+                float zp = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+                zp *= Z;
+
+                if (zp < depth_buf[get_index(m, n)])
+                {
+                    auto interpolated_color = interpolate(alpha, beta, gamma, t.color[0], t.color[1], t.color[2], 1);
+                    auto interpolated_normal = interpolate(alpha, beta, gamma, t.normal[0], t.normal[1], t.normal[2], 1);
+                    auto interpolated_texcoords = interpolate(alpha, beta, gamma, t.tex_coords[0], t.tex_coords[1], t.tex_coords[2], 1);
+                    auto interpolated_shadingcoords = interpolate(alpha, beta, gamma, view_pos[0], view_pos[1], view_pos[2], 1);
+
+                    fragment_shader_payload payload( interpolated_color, interpolated_normal.normalized(), interpolated_texcoords, texture ? &*texture : nullptr);
+                    payload.view_pos = interpolated_shadingcoords;
+                    auto pixel_color = fragment_shader(payload);
+
+                    depth_buf[get_index(m, n)] = zp;
+                    set_pixel(Vector2i(m, n), pixel_color);
+                }
+            }
+        }
+    }
+
+
     // TODO: Interpolate the attributes:
     // auto interpolated_color
     // auto interpolated_normal
