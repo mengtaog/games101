@@ -22,6 +22,16 @@ Projection transformations：投影变换包含两种投影方式：正交投影
     - fovY： 摄像机，上边中点与下中点边所成角,垂直可视角度，fov一般默认垂直可视角度。
     - fovX：摄像机，左边中点与右边中点所成角，水平可视角度。
 
+- main.cpp
+  - 关于 Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float zNear, float zFar)
+    - 意义： 返回Projection部分(使用透视投影)的变换矩阵
+    - 参数 
+      - eye_fov：fovY
+      - aspect_ration: 宽高比
+      - zNear：视锥的近平面的z (即和摄像机的距离)
+      - zFar: 视锥远平面z    
+    - 成像上下颠倒问题：http://games-cn.org/forums/topic/zuoye2jieguoshangxiadiandao/
+
 ### Build & Run
 mkdir build
 
