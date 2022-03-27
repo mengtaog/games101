@@ -130,7 +130,7 @@ Vector3f castRay(
     }
 
     Vector3f hitColor = scene.backgroundColor;
-    if (auto payload = trace(orig, dir, scene.get_objects()); payload)
+    if (auto payload = trace(orig, dir, scene.get_objects()); payload) //hit_payload :float tNear; uint32_t index; Vector2f uv;  Object* hit_obj;
     {
         Vector3f hitPoint = orig + dir * payload->tNear;
         Vector3f N; // normal
@@ -229,7 +229,8 @@ void Renderer::Render(const Scene& scene)
             // vector that passes through it.
             // Also, don't forget to multiply both of them with the variable *scale*, and
             // x (horizontal) variable with the *imageAspectRatio*            
-
+            x = (((static_cast<float>(i) + 0.5f)/scene.width) * 2 - 1) * scale * imageAspectRatio;
+            y = (1-((static_cast<float>(j) + 0.5f)/scene.height) * 2) * scale;
             Vector3f dir = Vector3f(x, y, -1); // Don't forget to normalize this direction!
             framebuffer[m++] = castRay(eye_pos, dir, scene, 0);
         }
