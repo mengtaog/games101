@@ -2,3 +2,5 @@
 /.vs/
 /x64/
 /build/
+*/.vs/
+*/build/
